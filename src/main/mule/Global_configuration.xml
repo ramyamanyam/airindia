@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	
+      <wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="a5f2e2ac-26da-4841-bc96-9ae8a7fb43f2" >
+		<wsc:connection wsdlLocation="http://airindia-services.us-e2.cloudhub.io/airindia?wsdl" service="TicketServiceService" port="TicketServicePort" address="http://airindia-services.us-e2.cloudhub.io/airindia" >
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	  </wsc:config> 
+	
+	
+</mule>

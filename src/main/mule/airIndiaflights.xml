@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	
+	
+	<flow name="airIndiaflightsflow" doc:id="4f33d640-a3ab-4fe3-a799-5751d88996e2" >
+		<logger level="INFO" doc:name="Logger" doc:id="72f3eced-ea65-4feb-a15e-b144dda73921" message="request recieved from airindia......... #[attributes.queryParams]"/>
+		<ee:transform doc:name="Transform Message" doc:id="dd23179d-67d3-438a-8218-6acf86bfbd6c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.training.mulesoft.com/
+---
+{
+	ns0#getFlights: {
+		from: attributes.queryParams.source as String,
+		to: attributes.queryParams.destination as String,
+		depatureDate: attributes.queryParams.doj as String
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8d5e5abd-7f21-468c-95fe-de866084f61a" message="Request from airindia................. #[attributes.queryParams]"/>
+		<wsc:consume operation="getFlights" doc:name="Consume" doc:id="77875b1d-5923-41cc-bd2a-069a557423c2" config-ref="Web_Service_Consumer_Config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="88adc36f-1996-4a64-a3fd-a38eb6e5de82" message="Response recieved from airindia........... #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="b8e61d77-742c-4817-a24c-2e0a9518eb39" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.training.mulesoft.com/
+---
+payload.body.ns0#getFlightsResponse.*return map ( return , indexOfReturn ) -> {
+	ID: return.ID as String,
+	airline: return.airline,
+	flightCode: return.flightCode,
+	fromAirportCode: return.fromAirportCode,
+	toAirportCode: return.toAirportCode,
+	departureDate: return.departureDate,
+	emptySeats: return.emptySeats as String,
+	totalSeats: return.totalSeats as Number,
+	price: return.price as String,
+	planeType: return.planeType
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="4ec0ae21-2861-4930-a4fa-fe0887b29689" message="Final response from airindia airlines.........#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d56639e2-6746-4754-949d-ff3156de6e2d" >
+				<ee:transform doc:name="Transform Message" doc:id="825cef46-6391-4f2e-8358-eb8aeea93d79" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Statuscode: 500,
+	Message: "unable to process the request,please try again after some time"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
